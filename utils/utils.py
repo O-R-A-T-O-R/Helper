@@ -1,4 +1,5 @@
 from time import sleep
+import tkinter
 from PIL import Image, ImageTk
 import cv2
 
@@ -21,7 +22,6 @@ def create_circle(x, y, r, canvas):
     x0, y0, x1, y1 = x - r, y - r, x + r, y + r
 
     return canvas.create_oval(x0, y0, x1, y1, fill='black')
-
 
 def play_gif(label, gif : list):
     """
@@ -46,3 +46,16 @@ def play_gif(label, gif : list):
         sleep(.05)
 
     play_gif(label, gif)
+
+def set_image(label : tkinter.Label, image_path : str):
+    image = Image.open(image_path)
+    frame = ImageTk.PhotoImage(image)
+
+    width, height = image.width, image.height
+
+    label.config(image=frame)
+    label.image = frame
+
+
+def coords(canvas : tkinter.Canvas, obj, x, y, width, height):
+    canvas.coords(obj, x, y, x + width, y + height)
