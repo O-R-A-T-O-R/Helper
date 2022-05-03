@@ -2,9 +2,9 @@ from tkinter import *
 
 from App import App
 from utils.utils import *
+from models import Item
 
 from threading import Thread
-from random import randint
 from time import sleep
 
 APP = App()
@@ -28,19 +28,36 @@ ROOT = Canvas(
 ROOT.pack()
 
 main_body = create_circle(0, 0, body_radius, ROOT)
-society = create_circle(0, 0, items_radius, ROOT)
+society_model = create_circle(0, 0, items_radius, ROOT)
+
+society = Item(0, 500, items_radius * 2, items_radius * 2, ROOT, society_model)
+
 
 # menu items position
-coords(ROOT, society, screen_width // 2 - items_radius,
-       500, items_radius * 2, items_radius * 2)
+society.coords(screen_width // 2 - items_radius, 500)
 
 # main body position
 coords(ROOT, main_body, screen_width // 2 -
        body_radius, 0, body_radius * 2, body_radius * 2)
 
+
 # eyes field
 eye = Label(ROOT, compound='top', width=296, height=150)
 ROOT.create_window(245 + screen_width // 2 - body_radius, 190, window=eye,)
+# ----------------------------
+
+
+# ------ mouse/cursor events ------
+def enter(event):
+    some = Thread(target=society.smoothed_coords, args=(society.x, 500), daemon=True)
+    some.start()
+
+def leave(event):
+    some_ = Thread(target=society.smoothed_coords, args=(society.x, 0), daemon=True)
+    some_.start()
+
+APP.bind('<FocusIn>', enter)
+APP.bind('<FocusOut>', leave)
 # ----------------------------
 
 
@@ -53,41 +70,8 @@ right_closed_eye = APP.get_right_closed()
 
 
 # ------ eye animations ------
-def animate_eye(label: Label):
-    """ Eye Animation (constant blinking) """
-
-    while True:
-        if not APP.on_left_eye and not APP.on_right_eye:
-            set_image(label, opened_eyes)
-            APP.set_state('opened')
-
-        sleep(randint(3, 5))
-
-        set_image(label, closed_eyes)
-        APP.set_state('closed')
-
-        sleep(.3)
-
-
-def on_eye(label: Label):
-    while True:
-        if APP.on_left_eye:
-            # cursor located on left eye
-            set_image(label, left_closed_eye)
-
-        elif APP.on_right_eye:
-            # cursor located on right eye
-            set_image(label, right_closed_eye)
-
-        else:
-            if APP.eye_state in ('left_closed', 'right_closed'):
-                set_image(label, opened_eyes)
-
-        sleep(.05)
-
-
-eye_animation = Thread(target=animate_eye, args=(eye, ), daemon=True)
-on_eye_animation = Thread(target=on_eye, args=(eye, ), daemon=True)
+eye_animation = Thread(target=animate_eye, args=(APP, eye), daemon=True)
+on_eye_animation = Thread(target=on_eye, args=(APP, eye), daemon=True)
 
 on_eye_animation.start()
 eye_animation.start()

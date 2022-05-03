@@ -17,7 +17,7 @@ class App(Tk):
         super().__init__()
 
         self.eye_state = 'opened'
-        self.on_left_eye = self.on_right_eye = False
+        self.on_left_eye = self.on_right_eye = self.focused = False
         self.x = self.__indent_x__
         self.y = self.__indent_y__
 
